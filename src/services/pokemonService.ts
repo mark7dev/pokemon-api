@@ -4,6 +4,8 @@ import {
   PokemonBasicInfo,
   PokemonDetail,
   PokemonDTO,
+  PokemonFullDTO,
+  PokemonFullDetail,
 } from '../interfaces/pokemonInterfaces';
 import { toAppError } from '../utils/axiosError';
 
@@ -113,4 +115,51 @@ export async function getAllPokemonsService(): Promise<PokemonDTO[]> {
   cacheTimestamp = Date.now();
 
   return allPokemon;
+}
+
+function getImages(detail: PokemonFullDetail): string[] {
+  return [
+    detail.sprites?.other?.dream_world?.front_default,
+    detail.sprites?.other?.home?.front_default,
+    detail.sprites?.other?.['official-artwork']?.front_default,
+  ].filter((img): img is string => img !== null);
+}
+
+function toFullDTO(detail: PokemonFullDetail): PokemonFullDTO {
+  return {
+    id: detail.id,
+    name: detail.name,
+    height: detail.height,
+    weight: detail.weight,
+    base_experience: detail.base_experience,
+    abilities: detail.abilities.map((a) => a.ability.name),
+    types: detail.types.map((t) => t.type.name),
+    images: getImages(detail),
+    stats: {
+      hp: detail.stats.find((s) => s.stat.name === 'hp')?.base_stat || 0,
+      attack: detail.stats.find((s) => s.stat.name === 'attack')?.base_stat || 0,
+      defense: detail.stats.find((s) => s.stat.name === 'defense')?.base_stat || 0,
+      special_attack: detail.stats.find((s) => s.stat.name === 'special-attack')?.base_stat || 0,
+      special_defense: detail.stats.find((s) => s.stat.name === 'special-defense')?.base_stat || 0,
+      speed: detail.stats.find((s) => s.stat.name === 'speed')?.base_stat || 0,
+    },
+  };
+}
+
+async function fetchPokemonByName(name: string) {
+  try {
+    const url = `${POKEAPI_BASE}/pokemon/${name.toLowerCase()}`;
+    const { data, status, statusText } = await http.get<PokemonFullDetail>(url);
+    if (status < 200 || status >= 300) {
+      throw new Error(statusText || 'Bad response');
+    }
+    return toFullDTO(data);
+  } catch (error) {
+    throw toAppError(error, 'Failed to fetch Pokemon list');
+  }
+}
+
+export async function getPokemonByNameService(name: string): Promise<PokemonFullDTO> {
+  const pokemon = await fetchPokemonByName(name);
+  return pokemon;
 }

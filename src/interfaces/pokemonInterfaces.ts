@@ -36,3 +36,49 @@ export interface PokemonDTO {
   types: string[];
   image: string | null;
 }
+
+export interface PokemonAbility {
+  ability: {
+    name: string;
+    url: string;
+  };
+  is_hidden: boolean;
+  slot: number;
+}
+
+export interface PokemonStat {
+  base_stat: number;
+  effort: number;
+  stat: {
+    name: string;
+    url: string;
+  };
+}
+
+export interface PokemonFullDetail extends PokemonDetail {
+  id: number;
+  height: number;
+  weight: number;
+  base_experience: number;
+  abilities: PokemonAbility[];
+  stats: PokemonStat[];
+} 
+
+export interface PokemonFullDTO {
+  id: number;
+  name: string;
+  height: number;
+  weight: number;
+  base_experience: number;
+  abilities: string[];
+  types: string[];
+  images: string[];
+  stats: {
+    hp: number;
+    attack: number;
+    defense: number;
+    special_attack: number;
+    special_defense: number;
+    speed: number;
+  };
+}
