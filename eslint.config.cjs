@@ -1,10 +1,11 @@
-// Flat ESLint config for ESLint v9+
-import tsParser from '@typescript-eslint/parser';
-import tsPlugin from '@typescript-eslint/eslint-plugin';
-import importPlugin from 'eslint-plugin-import';
-import prettierPlugin from 'eslint-plugin-prettier';
+// Flat ESLint config in CommonJS to avoid requiring "type": "module"
+const tsParser = require('@typescript-eslint/parser');
+const tsPlugin = require('@typescript-eslint/eslint-plugin');
+const importPlugin = require('eslint-plugin-import');
+const prettierPlugin = require('eslint-plugin-prettier');
 
-export default [
+/** @type {import('eslint').Linter.FlatConfig[]} */
+module.exports = [
   {
     ignores: ['dist/**', 'node_modules/**', 'coverage/**', 'jest.config.ts'],
   },
