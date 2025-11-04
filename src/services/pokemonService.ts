@@ -3,7 +3,16 @@ import { AppError } from "../middleware/errorHandler";
 import { PokemonListResponse, PokemonBasicInfo, PokemonDetail, PokemonDTO, PokemonTypeInfo } from "../interfaces/pokemonInterfaces";
 
 const POKEAPI_BASE = process.env.POKEAPI_BASE || "https://pokeapi.co/api/v2";
+const CACHE_TTL = Number(process.env.CACHE_TTL || 10 * 60 * 1000); // 10 min
 const BATCH_SIZE = Number(process.env.BATCH_SIZE || 50);
+
+// Simple in-memory cache
+let cacheData: PokemonDTO[] | null = null;
+let cacheTimestamp = 0;
+
+function isCacheValid(): boolean {
+  return cacheData !== null && Date.now() - cacheTimestamp < CACHE_TTL;
+}
 
 async function fetchPokemonCount(): Promise<number> {
   try {
@@ -86,11 +95,20 @@ async function fetchDetailsInBatches(urls: string[]): Promise<PokemonDTO[]> {
 }
 
 export async function getAllPokemonsService() {
+
+  if (isCacheValid() && cacheData !== null) {
+    return cacheData;
+  }
+
   const pokemonCount = await fetchPokemonCount();
   const pokemonList = await fetchPokemonList(pokemonCount);
   const pokemonUrls = pokemonList.map((element) => element.url);
 
   const allPokemon = await fetchDetailsInBatches(pokemonUrls);
+
+  // Store in cache
+  cacheData = allPokemon;
+  cacheTimestamp = Date.now();
 
   // Sort alphabetically by name
   // allPokemon.sort((a, b) => a.name.localeCompare(b.name));
