@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
+import { getAllPokemonsService } from "../services/pokemonService";
 
 export class PokemonController {
-    static getAllPokemons = (req: Request, res: Response, next: NextFunction): void => {
+    static getAllPokemons = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            // Logic to get all Pokemons
-            res.status(200).json({ message: "List of all Pokemons" });
+            const pokemons = await getAllPokemonsService();
+            res.json(pokemons);
         } catch (error) {
             next(error);
         }

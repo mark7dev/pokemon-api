@@ -14,6 +14,6 @@ app.use(morgan('dev'))
 
 app.use(express.json())
 
-app.use('/api/pokemons', pokemonRouter);
+app.use('/api/pokemon', pokemonRouter);
 
 export default app
