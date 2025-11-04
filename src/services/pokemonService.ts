@@ -1,6 +1,7 @@
 import axios from "axios";
 import { AppError } from "../middleware/errorHandler";
 import { PokemonListResponse, PokemonBasicInfo, PokemonDetail, PokemonDTO, PokemonTypeInfo } from "../interfaces/pokemonInterfaces";
+import { toAppError } from "../utils/axiosError";
 
 const POKEAPI_BASE = process.env.POKEAPI_BASE || "https://pokeapi.co/api/v2";
 const CACHE_TTL = Number(process.env.CACHE_TTL || 10 * 60 * 1000); // 10 min
@@ -20,14 +21,7 @@ async function fetchPokemonCount(): Promise<number> {
     const { data } = await axios.get<PokemonListResponse>(url);
     return data.count;
   } catch (error) {
-    if (error && typeof error === 'object' && 'response' in error) {
-      const axiosError = error as any;
-      throw new AppError(
-        `Failed to fetch Pokemon count: ${axiosError.message}`,
-        503
-      );
-    }
-    throw error;
+    throw toAppError(error, 'Failed to fetch Pokemon count');
   }
 }
 
@@ -37,14 +31,7 @@ async function fetchPokemonList(count: number): Promise<PokemonBasicInfo[]> {
     const { data } = await axios.get<PokemonListResponse>(url);
     return data.results;
   } catch (error) {
-    if (error && typeof error === 'object' && 'response' in error) {
-      const axiosError = error as any;
-      throw new AppError(
-        `Failed to fetch Pokemon list: ${axiosError.message}`,
-        503
-      );
-    }
-    throw error;
+    throw toAppError(error, 'Failed to fetch Pokemon list');
   }
 }
 
@@ -80,14 +67,7 @@ async function fetchDetailsInBatches(urls: string[]): Promise<PokemonDTO[]> {
       );
       result.push(...details);
     } catch (error) {
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as any;
-        throw new AppError(
-          `Failed to fetch Pokemon details in batch: ${axiosError.message}`,
-          503
-        );
-      }
-      throw error;
+      throw toAppError(error, 'Failed to fetch Pokemon details in batch');
     }
   }
 
@@ -106,12 +86,12 @@ export async function getAllPokemonsService() {
 
   const allPokemon = await fetchDetailsInBatches(pokemonUrls);
 
+  // Sort alphabetically by name for deterministic responses
+  // allPokemon.sort((a, b) => a.name.localeCompare(b.name));
+
   // Store in cache
   cacheData = allPokemon;
   cacheTimestamp = Date.now();
-
-  // Sort alphabetically by name
-  // allPokemon.sort((a, b) => a.name.localeCompare(b.name));
 
   return allPokemon;
 }

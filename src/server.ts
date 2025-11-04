@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import colors from 'colors';
 import morgan from 'morgan';
 import { corsConfig } from './config/cors';
 import { errorHandler } from "./middleware/errorHandler";
