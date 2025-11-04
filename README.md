@@ -106,4 +106,19 @@ Configure allowed origins via `FRONTEND_URL`/`FRONTEND_URLS`. You can also allow
 - Set environment variables (CORS, TTL, etc.).
 - Run with `node dist/index.js` or the provided `npm start`.
 
+## Continuous Integration (CI)
+This repo includes a GitHub Actions workflow that runs on every push and pull request:
+
+- Installs dependencies with npm cache
+- Runs ESLint (`npm run lint`)
+- Runs tests in CI mode (`npm test -- --ci`)
+
+Workflow file: `.github/workflows/ci.yml`
+
+You can add a status badge to this README by replacing `OWNER` and `REPO`:
+
+```
+![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)
+```
+
 
