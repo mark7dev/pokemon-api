@@ -1,11 +1,17 @@
 import axios from "axios";
-import { AppError } from "../middleware/errorHandler";
-import { PokemonListResponse, PokemonBasicInfo, PokemonDetail, PokemonDTO, PokemonTypeInfo } from "../interfaces/pokemonInterfaces";
+import { PokemonListResponse, PokemonBasicInfo, PokemonDetail, PokemonDTO } from "../interfaces/pokemonInterfaces";
 import { toAppError } from "../utils/axiosError";
 
 const POKEAPI_BASE = process.env.POKEAPI_BASE || "https://pokeapi.co/api/v2";
 const CACHE_TTL = Number(process.env.CACHE_TTL || 10 * 60 * 1000); // 10 min
 const BATCH_SIZE = Number(process.env.BATCH_SIZE || 50);
+const AXIOS_TIMEOUT_MS = Number(process.env.AXIOS_TIMEOUT_MS || 10000);
+
+const http = axios.create({
+  timeout: AXIOS_TIMEOUT_MS,
+  // Avoid throwing on non-2xx automatically; we map errors via toAppError
+  validateStatus: () => true,
+});
 
 // Simple in-memory cache
 let cacheData: PokemonDTO[] | null = null;
@@ -18,7 +24,10 @@ function isCacheValid(): boolean {
 async function fetchPokemonCount(): Promise<number> {
   try {
     const url = `${POKEAPI_BASE}/pokemon?limit=1`;
-    const { data } = await axios.get<PokemonListResponse>(url);
+    const { data, status, statusText } = await http.get<PokemonListResponse>(url);
+    if (status < 200 || status >= 300) {
+      throw new Error(statusText || 'Bad response');
+    }
     return data.count;
   } catch (error) {
     throw toAppError(error, 'Failed to fetch Pokemon count');
@@ -28,7 +37,10 @@ async function fetchPokemonCount(): Promise<number> {
 async function fetchPokemonList(count: number): Promise<PokemonBasicInfo[]> {
   try {
     const url = `${POKEAPI_BASE}/pokemon?limit=${count}`;
-    const { data } = await axios.get<PokemonListResponse>(url);
+    const { data, status, statusText } = await http.get<PokemonListResponse>(url);
+    if (status < 200 || status >= 300) {
+      throw new Error(statusText || 'Bad response');
+    }
     return data.results;
   } catch (error) {
     throw toAppError(error, 'Failed to fetch Pokemon list');
@@ -61,7 +73,10 @@ async function fetchDetailsInBatches(urls: string[]): Promise<PokemonDTO[]> {
     try {
       const details = await Promise.all(
         batch.map(async (url) => {
-          const { data } = await axios.get<PokemonDetail>(url);
+          const { data, status, statusText } = await http.get<PokemonDetail>(url);
+          if (status < 200 || status >= 300) {
+            throw new Error(statusText || 'Bad response');
+          }
           return toDTO(data);
         })
       );
@@ -74,7 +89,7 @@ async function fetchDetailsInBatches(urls: string[]): Promise<PokemonDTO[]> {
   return result;
 }
 
-export async function getAllPokemonsService() {
+export async function getAllPokemonsService(): Promise<PokemonDTO[]> {
 
   if (isCacheValid() && cacheData !== null) {
     return cacheData;
@@ -87,7 +102,7 @@ export async function getAllPokemonsService() {
   const allPokemon = await fetchDetailsInBatches(pokemonUrls);
 
   // Sort alphabetically by name for deterministic responses
-  // allPokemon.sort((a, b) => a.name.localeCompare(b.name));
+  allPokemon.sort((a, b) => a.name.localeCompare(b.name));
 
   // Store in cache
   cacheData = allPokemon;
