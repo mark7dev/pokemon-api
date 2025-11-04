@@ -52,10 +52,20 @@ describe('GET /api/pokemons (integration)', () => {
 
     const res = await request(app).get('/api/pokemons').expect(200);
     expect(Array.isArray(res.body)).toBe(true);
-    // Sorted by name: arbok, bulbasaur
-    expect(res.body.map((p: any) => p.name)).toEqual(['arbok', 'bulbasaur']);
-    expect(res.body[0]).toEqual({ name: 'arbok', types: ['poison'], image: 'arbok.png' });
-    expect(res.body[1]).toEqual({ name: 'bulbasaur', types: ['grass'], image: 'bulba.png' });
+    // Not sorted
+    const names = res.body.map((p: any) => p.name);
+    // Do not assert order; only assert presence and shape
+    expect(names).toEqual(expect.arrayContaining(['arbok', 'bulbasaur']));
+    expect(res.body.length).toBe(2);
+    const arbokDto = res.body.find((p: any) => p.name === 'arbok');
+    const bulbaDto = res.body.find((p: any) => p.name === 'bulbasaur');
+    expect(arbokDto).toEqual({ name: 'arbok', types: ['poison'], image: 'arbok.png' });
+    expect(bulbaDto).toEqual({ name: 'bulbasaur', types: ['grass'], image: 'bulba.png' });
+
+    // In case of sorting, uncomment these:
+    // expect(res.body.map((p: any) => p.name)).toEqual(['arbok', 'bulbasaur']);
+    // expect(res.body[0]).toEqual({ name: 'arbok', types: ['poison'], image: 'arbok.png' });
+    // expect(res.body[1]).toEqual({ name: 'bulbasaur', types: ['grass'], image: 'bulba.png' });
   });
 });
 

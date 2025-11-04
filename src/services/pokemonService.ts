@@ -102,7 +102,7 @@ export async function getAllPokemonsService(): Promise<PokemonDTO[]> {
   const allPokemon = await fetchDetailsInBatches(pokemonUrls);
 
   // Sort alphabetically by name for deterministic responses
-  allPokemon.sort((a, b) => a.name.localeCompare(b.name));
+  // allPokemon.sort((a, b) => a.name.localeCompare(b.name));
 
   // Store in cache
   cacheData = allPokemon;
