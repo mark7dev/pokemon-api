@@ -1,8 +1,8 @@
-import { AppError } from "../middleware/errorHandler";
+import { AppError } from '../middleware/errorHandler';
 
 export function toAppError(error: unknown, fallbackMessage: string, statusCode = 503): AppError {
   if (isAxiosError(error)) {
-    const axiosErr = error as any;
+    const axiosErr = error as { message?: string; response?: { status?: number } };
     const message = axiosErr.message || fallbackMessage;
     return new AppError(message, axiosErr.response?.status || statusCode);
   }
@@ -13,7 +13,7 @@ export function toAppError(error: unknown, fallbackMessage: string, statusCode =
 }
 
 export function isAxiosError(error: unknown): boolean {
-  return !!error && typeof error === 'object' && (error as any).isAxiosError === true;
+  if (!error || typeof error !== 'object') return false;
+  const maybe = error as Record<string, unknown>;
+  return maybe.isAxiosError === true;
 }
-
-

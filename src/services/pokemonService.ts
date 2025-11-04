@@ -1,8 +1,13 @@
-import axios from "axios";
-import { PokemonListResponse, PokemonBasicInfo, PokemonDetail, PokemonDTO } from "../interfaces/pokemonInterfaces";
-import { toAppError } from "../utils/axiosError";
+import axios from 'axios';
+import {
+  PokemonListResponse,
+  PokemonBasicInfo,
+  PokemonDetail,
+  PokemonDTO,
+} from '../interfaces/pokemonInterfaces';
+import { toAppError } from '../utils/axiosError';
 
-const POKEAPI_BASE = process.env.POKEAPI_BASE || "https://pokeapi.co/api/v2";
+const POKEAPI_BASE = process.env.POKEAPI_BASE || 'https://pokeapi.co/api/v2';
 const CACHE_TTL = Number(process.env.CACHE_TTL || 10 * 60 * 1000); // 10 min
 const BATCH_SIZE = Number(process.env.BATCH_SIZE || 50);
 const AXIOS_TIMEOUT_MS = Number(process.env.AXIOS_TIMEOUT_MS || 10000);
@@ -51,7 +56,7 @@ function getImage(detail: PokemonDetail): string | null {
   return (
     detail.sprites?.other?.dream_world?.front_default ??
     detail.sprites?.other?.home?.front_default ??
-    detail.sprites?.other?.["official-artwork"]?.front_default ??
+    detail.sprites?.other?.['official-artwork']?.front_default ??
     detail.sprites?.front_default ??
     null
   );
@@ -78,7 +83,7 @@ async function fetchDetailsInBatches(urls: string[]): Promise<PokemonDTO[]> {
             throw new Error(statusText || 'Bad response');
           }
           return toDTO(data);
-        })
+        }),
       );
       result.push(...details);
     } catch (error) {
@@ -90,7 +95,6 @@ async function fetchDetailsInBatches(urls: string[]): Promise<PokemonDTO[]> {
 }
 
 export async function getAllPokemonsService(): Promise<PokemonDTO[]> {
-
   if (isCacheValid() && cacheData !== null) {
     return cacheData;
   }

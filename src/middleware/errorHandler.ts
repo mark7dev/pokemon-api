@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
 export class AppError extends Error {
   statusCode: number;
@@ -12,21 +12,22 @@ export class AppError extends Error {
   }
 }
 
+type AxiosLikeError = Error & { response?: { status?: number; statusText?: string } };
+
 export function errorHandler(
   err: Error | AppError,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ): void {
   // Log error
-  console.error("Error:", err);
+  console.error('Error:', err);
 
   // Handle Axios errors
-  if (err.name === "AxiosError" && "response" in err) {
-    const axiosError = err as any;
+  if (err.name === 'AxiosError' && 'response' in err) {
+    const axiosError = err as AxiosLikeError;
     const statusCode = axiosError.response?.status || 500;
-    const message =
-      axiosError.response?.statusText || "External API request failed";
+    const message = axiosError.response?.statusText || 'External API request failed';
 
     res.status(statusCode).json({
       error: message,
@@ -46,8 +47,8 @@ export function errorHandler(
 
   // Handle unexpected errors
   res.status(500).json({
-    error: "Internal server error",
+    error: 'Internal server error',
     statusCode: 500,
-    ...(process.env.NODE_ENV === "development" && { message: err.message }),
+    ...(process.env.NODE_ENV === 'development' && { message: err.message }),
   });
 }

@@ -15,5 +15,3 @@ describe('errorHandler middleware', () => {
     expect(res.body).toEqual({ error: 'teapot', statusCode: 418 });
   });
 });
-
-

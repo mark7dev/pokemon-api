@@ -21,7 +21,11 @@ describe('GET /api/pokemons (integration)', () => {
 
   it('returns a sorted list of Pokemon DTOs', async () => {
     // 1) Count
-    getMock.mockResolvedValueOnce({ status: 200, statusText: 'OK', data: { count: 2 } as PokemonListResponse });
+    getMock.mockResolvedValueOnce({
+      status: 200,
+      statusText: 'OK',
+      data: { count: 2 } as PokemonListResponse,
+    });
     // 2) List
     getMock.mockResolvedValueOnce({
       status: 200,
@@ -68,5 +72,3 @@ describe('GET /api/pokemons (integration)', () => {
     // expect(res.body[1]).toEqual({ name: 'bulbasaur', types: ['grass'], image: 'bulba.png' });
   });
 });
-
-
