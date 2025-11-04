@@ -151,11 +151,14 @@ async function fetchPokemonByName(name: string) {
     const url = `${POKEAPI_BASE}/pokemon/${name.toLowerCase()}`;
     const { data, status, statusText } = await http.get<PokemonFullDetail>(url);
     if (status < 200 || status >= 300) {
-      throw new Error(statusText || 'Bad response');
+      // Preservar el código de estado original
+      const error = new Error(statusText || 'Bad response');
+      (error as any).status = status;
+      throw error;
     }
     return toFullDTO(data);
   } catch (error) {
-    throw toAppError(error, 'Failed to fetch Pokemon list');
+    throw toAppError(error, 'Failed to fetch Pokemon', (error as any)?.status);
   }
 }
 
