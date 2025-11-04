@@ -24,6 +24,12 @@ const http = axios.create({
 let cacheData: PokemonDTO[] | null = null;
 let cacheTimestamp = 0;
 
+// Export function to clear cache for testing
+export function clearCache(): void {
+  cacheData = null;
+  cacheTimestamp = 0;
+}
+
 function isCacheValid(): boolean {
   return cacheData !== null && Date.now() - cacheTimestamp < CACHE_TTL;
 }
