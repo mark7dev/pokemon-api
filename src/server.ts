@@ -3,6 +3,7 @@ import cors from 'cors';
 import colors from 'colors';
 import morgan from 'morgan';
 import { corsConfig } from './config/cors';
+import pokemonRouter from './routes/pokemonRouter';
 
 const app = express();
 
@@ -12,5 +13,7 @@ app.use(cors(corsConfig));
 app.use(morgan('dev'))
 
 app.use(express.json())
+
+app.use('/api/pokemons', pokemonRouter);
 
 export default app
