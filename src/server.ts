@@ -3,6 +3,7 @@ import cors from 'cors';
 import colors from 'colors';
 import morgan from 'morgan';
 import { corsConfig } from './config/cors';
+import { errorHandler } from "./middleware/errorHandler";
 import pokemonRouter from './routes/pokemonRouter';
 
 const app = express();
@@ -14,6 +15,8 @@ app.use(morgan('dev'))
 
 app.use(express.json())
 
-app.use('/api/pokemon', pokemonRouter);
+app.use('/api/pokemons', pokemonRouter);
+
+app.use(errorHandler);
 
 export default app
