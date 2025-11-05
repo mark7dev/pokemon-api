@@ -1,5 +1,9 @@
 import request from 'supertest';
-import type { PokemonDetail, PokemonListResponse, PokemonFullDetail } from '../interfaces/pokemonInterfaces';
+import type {
+  PokemonDetail,
+  PokemonListResponse,
+  PokemonFullDetail,
+} from '../interfaces/pokemonInterfaces';
 
 // Mock axios to control external calls used by the service (which creates an instance via axios.create)
 const getMock = jest.fn();

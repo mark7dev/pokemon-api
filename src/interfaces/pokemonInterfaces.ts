@@ -62,7 +62,7 @@ export interface PokemonFullDetail extends PokemonDetail {
   base_experience: number;
   abilities: PokemonAbility[];
   stats: PokemonStat[];
-} 
+}
 
 export interface PokemonFullDTO {
   id: number;

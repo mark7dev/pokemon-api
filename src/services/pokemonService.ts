@@ -9,6 +9,10 @@ import {
 } from '../interfaces/pokemonInterfaces';
 import { toAppError } from '../utils/axiosError';
 
+interface ErrorWithStatus extends Error {
+  status?: number;
+}
+
 const POKEAPI_BASE = process.env.POKEAPI_BASE || 'https://pokeapi.co/api/v2';
 const CACHE_TTL = Number(process.env.CACHE_TTL || 10 * 60 * 1000); // 10 min
 const BATCH_SIZE = Number(process.env.BATCH_SIZE || 50);
@@ -158,13 +162,14 @@ async function fetchPokemonByName(name: string) {
     const { data, status, statusText } = await http.get<PokemonFullDetail>(url);
     if (status < 200 || status >= 300) {
       // Preservar el código de estado original
-      const error = new Error(statusText || 'Bad response');
-      (error as any).status = status;
+      const error: ErrorWithStatus = new Error(statusText || 'Bad response');
+      error.status = status;
       throw error;
     }
     return toFullDTO(data);
   } catch (error) {
-    throw toAppError(error, 'Failed to fetch Pokemon', (error as any)?.status);
+    const errorWithStatus = error as ErrorWithStatus;
+    throw toAppError(error, 'Failed to fetch Pokemon', errorWithStatus?.status);
   }
 }
 

@@ -9,7 +9,11 @@ jest.mock('axios', () => {
   };
 });
 
-import { getAllPokemonsService, getPokemonByNameService, clearCache } from '../services/pokemonService';
+import {
+  getAllPokemonsService,
+  getPokemonByNameService,
+  clearCache,
+} from '../services/pokemonService';
 import { AppError } from '../middleware/errorHandler';
 
 describe('pokemonService', () => {

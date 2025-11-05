@@ -31,5 +31,5 @@ export class PokemonController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 }
